@@ -1,0 +1,35 @@
+{
+ "built_at": "2026-11-11T19:38:35+08:00",
+ "counts": {
+  "themes": 309,
+  "themes_claude": 7,
+  "wiki": 2022,
+  "wiki_claude": 39,
+  "reports": 1,
+  "gap": 380
+ },
+ "latest": {
+  "theme": "2026-11-11",
+  "report": "2026-11-11",
+  "chips": "20261111",
+  "macro": "2026-11-10"
+ },
+ "last_run": {
+  "started_at": "2026-11-11T19:30:04+08:00",
+  "steps": [
+   {
+    "name": "report",
+    "ok": true,
+    "note": "日報 2026-11-11 完成",
+    "sec": 452
+   },
+   {
+    "name": "publish",
+    "ok": true,
+    "note": "{'themes': 309, 'themes_claude': 7, 'wiki': 2022, 'wiki_claude': 39, 'reports': 1, 'gap': 380}",
+    "sec": 1
+   }
+  ],
+  "finished_at": "2026-11-11T19:37:36+08:00"
+ }
+}

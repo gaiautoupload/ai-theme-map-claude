@@ -1,0 +1,5 @@
+# 本機工作資料（主題、wiki、籌碼資料庫、快取、紀錄）不上傳；公開的只有 site/
+/data/
+__pycache__/
+*.pyc
+.claude/

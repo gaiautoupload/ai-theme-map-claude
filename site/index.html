@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>題材地圖</title>
+  <meta name="description" content="投資人的獲利雷達與預警牆：從總經環境、全球題材，追到台股真正吃得到價值的公司。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23243b6b'/%3E%3Cpath d='M8 22l6-8 4 5 6-9' stroke='%23f2b84b' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/app.css">
+  <script>try { const t = localStorage.getItem('thememap-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要內容</a>
+  <header class="topbar">
+    <div class="wrap topbar-in">
+      <a class="brand" href="#/">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8"/><path d="M8 22l6-8 4 5 6-9"/></svg>
+        <span><b>題材地圖</b><small>Theme Atlas</small></span>
+      </a>
+      <nav class="nav" aria-label="主要分頁">
+        <a href="#/" data-nav="home">今日雷達</a>
+        <a href="#/themes" data-nav="themes">題材</a>
+        <a href="#/macro" data-nav="macro">總經</a>
+        <a href="#/stocks" data-nav="stocks">個股</a>
+        <a href="#/flows" data-nav="flows">籌碼</a>
+        <a href="#/gaps" data-nav="gaps">預期落差</a>
+      </nav>
+      <div class="search" role="search">
+        <input id="q" type="search" placeholder="搜尋題材、代號或公司" autocomplete="off" aria-label="搜尋題材、代號或公司">
+        <div id="q-results" class="search-results" hidden></div>
+      </div>
+      <button id="theme-toggle" class="icon-btn" type="button" aria-label="切換深淺色">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+      </button>
+    </div>
+  </header>
+  <main id="main" class="wrap" tabindex="-1"><div class="loading">載入中…</div></main>
+  <footer class="footer wrap">
+    <p>題材地圖：產業題材、概念股與籌碼的研究整理。AI 內容由 Claude 解析，標示「舊模型」的內容來自舊版產線、尚未由 Claude 重寫，數字請以原始出處為準。</p>
+    <p>本站為研究參考，不構成任何投資建議。<a href="#/about">資料來源與方法</a> · <span id="built-at"></span></p>
+  </footer>
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>
