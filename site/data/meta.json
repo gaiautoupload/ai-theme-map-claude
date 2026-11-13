@@ -1,35 +1,71 @@
 {
- "built_at": "2026-11-11T19:38:35+08:00",
+ "built_at": "2026-11-13T09:23:17+08:00",
  "counts": {
-  "themes": 309,
-  "themes_claude": 7,
+  "themes": 310,
+  "themes_claude": 10,
   "wiki": 2022,
-  "wiki_claude": 39,
-  "reports": 1,
-  "gap": 380
+  "wiki_claude": 96,
+  "reports": 2,
+  "gap": 381
  },
  "latest": {
-  "theme": "2026-11-11",
-  "report": "2026-11-11",
-  "chips": "20261111",
-  "macro": "2026-11-10"
+  "theme": "2026-11-12",
+  "report": "2026-11-12",
+  "chips": "20261112",
+  "macro": "2026-11-11"
  },
  "last_run": {
-  "started_at": "2026-11-11T19:30:04+08:00",
+  "started_at": "2026-11-13T08:59:50+08:00",
   "steps": [
+   {
+    "name": "registry",
+    "ok": true,
+    "note": "1996 檔",
+    "sec": 4
+   },
+   {
+    "name": "macro",
+    "ok": true,
+    "note": "總金線 2026-11-11",
+    "sec": 0
+   },
+   {
+    "name": "chips",
+    "ok": true,
+    "note": "法人資料最新 20261112",
+    "sec": 0
+   },
+   {
+    "name": "wiki",
+    "ok": true,
+    "note": "重寫 30/30 檔個股簡介",
+    "sec": 722
+   },
+   {
+    "name": "gaps",
+    "ok": true,
+    "note": "新增 1 則預期落差",
+    "sec": 66
+   },
+   {
+    "name": "gapcheck",
+    "ok": true,
+    "note": "預期落差連動股：保留 0、移除 0（新聞內文沒提到或代號不符）",
+    "sec": 0
+   },
    {
     "name": "report",
     "ok": true,
-    "note": "日報 2026-11-11 完成",
-    "sec": 452
+    "note": "日報 2026-11-12 完成",
+    "sec": 613
    },
    {
-    "name": "publish",
+    "name": "flows",
     "ok": true,
-    "note": "{'themes': 309, 'themes_claude': 7, 'wiki': 2022, 'wiki_claude': 39, 'reports': 1, 'gap': 380}",
-    "sec": 1
+    "note": "題材火勢已重算",
+    "sec": 0
    }
   ],
-  "finished_at": "2026-11-11T19:37:36+08:00"
+  "finished_at": "2026-11-13T09:23:16+08:00"
  }
 }
