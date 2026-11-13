@@ -70,10 +70,11 @@ def _run(args: list[str]) -> int:
     failed = [f"{s['name']}：{s['note'][:80]}" for s in run["steps"] if not s["ok"]]
     if not no_record:
         names = "、".join(s["name"] for s in run["steps"])
+        kind = "排程產線" if "--skip-if-done" in args else "手動產線"
         if commit:
-            event, note = "排程產線／已推送／公開驗證", f"步驟 {names}" + (f"；失敗：{'；'.join(failed)}" if failed else "；全部成功")
+            event, note = f"{kind}／已推送／公開驗證", f"步驟 {names}" + (f"；失敗：{'；'.join(failed)}" if failed else "；全部成功")
         elif deploy_on:
-            event, note = "排程產線／發布失敗", "；".join(failed) or "未推送"
+            event, note = f"{kind}／發布失敗", "；".join(failed) or "未推送"
         else:
             event, note = "本機資料更新（未推送）", f"步驟 {names}" + (f"；失敗：{'；'.join(failed)}" if failed else "")
         try:
