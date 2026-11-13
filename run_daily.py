@@ -4,19 +4,25 @@
   python run_daily.py --no-ai      # 只更新官方資料（代號、法人、總經）並重新發布，不呼叫 Claude
   python run_daily.py --only=themes,report
   python run_daily.py --no-deploy  # 只更新本機，不推 GitHub
+  python run_daily.py --skip-if-done  # 排程用：今天已經成功發布過就不再跑（21:00 失敗時 23:00 補跑）
+同一時間只會有一個產線在跑（data/run.lock）；上一次若中途被關掉，下一次開始時會先把那次失敗記進更新紀錄。
 步驟：registry → macro → chips → themes → verify（概念股出處核對）→ wiki → gaps → report → flows（重算題材火勢）→ publish
       → deploy（推 GitHub、確認公開網站）→ 結果寫進 WEBSITE_REGISTRY.md／WEBSITE_UPDATE_LOG.md
 """
 from __future__ import annotations
 
+import ctypes
+import os
 import sys
 import time
 
 from pipeline import chips, config, deploy, macro_bridge, publish, registry, research, themes, verify
-from pipeline.store import iso_now, load, log_event, save
+from pipeline.store import iso_now, load, log_event, save, today
+
+LOCK = config.DATA / "run.lock"
 
 
-def main(args: list[str]) -> int:
+def _run(args: list[str]) -> int:
     no_ai = "--no-ai" in args
     no_deploy = "--no-deploy" in args   # 只更新本機，不推 GitHub
     no_record = "--no-record" in args   # 測試用：不寫網站總表與更新紀錄
@@ -76,6 +82,62 @@ def main(args: list[str]) -> int:
             print("✗ record", e, flush=True)
             ok = False
     return 0 if ok else 1
+
+
+def _alive(pid: int) -> bool:
+    """這個 pid 的程式還在跑嗎（Windows 不能用 os.kill(pid, 0)，那會送出 Ctrl+C）。"""
+    if pid <= 0:
+        return False
+    if os.name != "nt":
+        try:
+            os.kill(pid, 0)
+            return True
+        except OSError:
+            return False
+    k = ctypes.windll.kernel32
+    h = k.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+    if not h:
+        return False
+    code = ctypes.c_ulong()
+    ok = k.GetExitCodeProcess(h, ctypes.byref(code))
+    k.CloseHandle(h)
+    return bool(ok) and code.value == 259  # STILL_ACTIVE
+
+
+def _done_today() -> bool:
+    return any(r.get("started_at", "")[:10] == today() and any(s["name"] == "deploy" and s["ok"] for s in r.get("steps", []))
+               for r in load(config.DATA / "runs.json", []) or [])
+
+
+def main(args: list[str]) -> int:
+    no_record = "--no-record" in args
+    prev = load(LOCK, None)
+    if prev:
+        if _alive(int(prev.get("pid") or 0)):
+            print(f"另一個產線正在跑（pid {prev.get('pid')}，{prev.get('started_at')} 開始），這次不跑", flush=True)
+            return 0
+        if not no_record:  # 上一次沒跑完就被關掉（視窗被關、斷電、被終止）：補記失敗
+            try:
+                deploy.record(False, "產線中斷", f"上一次產線（{prev.get('started_at')} 開始）沒跑完就被結束，未發布；本次重跑", deployed=False)
+            except Exception as e:
+                print("✗ record", e, flush=True)
+        log_event("run", ok=False, error="上一次產線中途被結束", started_at=prev.get("started_at"))
+    if "--skip-if-done" in args and _done_today():
+        print(f"{today()} 已經成功發布過，這次不跑", flush=True)
+        LOCK.unlink(missing_ok=True)
+        return 0
+    save(LOCK, {"pid": os.getpid(), "started_at": iso_now(), "args": args})
+    try:
+        return _run(args)
+    except BaseException as e:  # Ctrl+C 之類的中斷：記下失敗再結束
+        if not no_record:
+            try:
+                deploy.record(False, "產線中斷", f"產線執行中被中斷（{type(e).__name__}），未發布", deployed=False)
+            except Exception:
+                pass
+        raise
+    finally:
+        LOCK.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
