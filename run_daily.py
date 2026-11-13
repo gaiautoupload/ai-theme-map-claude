@@ -106,8 +106,12 @@ def _alive(pid: int) -> bool:
 
 
 def _done_today() -> bool:
-    return any(r.get("started_at", "")[:10] == today() and any(s["name"] == "deploy" and s["ok"] for s in r.get("steps", []))
-               for r in load(config.DATA / "runs.json", []) or [])
+    """今晚已經成功發布過：今天 20:00 後開始、且 deploy 成功的執行（早上補跑前一天的不算），或網站日報已經是今天。"""
+    d = today()
+    evening = any(r.get("started_at", "")[:10] == d and r.get("started_at", "")[11:13] >= "20"
+                  and any(s["name"] == "deploy" and s["ok"] for s in r.get("steps", []))
+                  for r in load(config.DATA / "runs.json", []) or [])
+    return evening or (load(config.SITE_DATA / "meta.json", {}) or {}).get("latest", {}).get("report") == d
 
 
 def main(args: list[str]) -> int:
