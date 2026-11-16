@@ -100,7 +100,40 @@ def _official_day(day: str) -> dict:
     return out
 
 
+def _latest_official() -> tuple[str, float] | None:
+    """證交所 FMTQIK 最新一個交易日與收盤（本月沒有資料就看上個月）。抓不到回 None。"""
+    first = now_tw().replace(day=1)
+    for d in (now_tw(), first - timedelta(days=1)):
+        u = f"https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date={d.strftime('%Y%m%d')}&response=json"
+        try:
+            rows = requests.get(u, headers=H, timeout=30).json().get("data") or []
+        except Exception as e:
+            log_event("official", ok=False, step="FMTQIK latest", error=str(e)[:200])
+            return None
+        if rows:
+            y, m, dd = rows[-1][0].split("/")
+            return f"{int(y) + 1911}-{m}-{dd}", float(str(rows[-1][4]).replace(",", ""))
+    return None
+
+
+def as_of(board: dict, day: str) -> dict:
+    """補寫舊日報用：總經指標只留 day 當天以前的最後一筆，避免把之後的數據寫進去。"""
+    out = dict(board or {}, indicators={})
+    for k, v in (board or {}).get("indicators", {}).items():
+        v = dict(v)
+        if str(v.get("date") or "") > day:
+            past = [h for h in v.get("history") or [] if h[0] <= day]
+            if not past:
+                continue
+            v.update(date=past[-1][0], value=past[-1][1], trend_text=f"取 {day} 以前最後一筆", history=past)
+        else:
+            v["history"] = [h for h in v.get("history") or [] if h[0] <= day]
+        out["indicators"][k] = v
+    return out
+
+
 NUM = re.compile(r"[-+]?\d[\d,]*\.?\d*")
+UP_WORDS, DOWN_WORDS = ("漲", "揚", "升", "紅", "彈", "攻", "高"), ("跌", "挫", "殺", "黑", "摔", "低", "滑", "落")
 ymd8 = lambda s: f"{s[:4]}-{s[4:6]}-{s[6:8]}" if s and len(str(s)) == 8 and str(s).isdigit() else str(s or "")[:10]
 
 
@@ -144,9 +177,11 @@ def _report_check(facts: dict, hist: list, macro: dict, chips: dict):
         if facts["change"] is not None:
             if f"{abs(facts['change']):,.2f}" not in head and f"{abs(facts['change']):.2f}" not in head:
                 return f"漲跌點數必須是 {facts['change']:+,.2f}"
-            word = "漲" if facts["change"] > 0 else "跌"
-            if word not in d["title"]:
-                return f"今天是{'上漲' if word == '漲' else '下跌'}，標題要寫對方向"
+            up = facts["change"] > 0
+            right, opposite = (UP_WORDS, "跌") if up else (DOWN_WORDS, "漲")
+            if not any(w in d["title"] for w in right) or opposite in d["title"]:
+                return (f"今天是{'上漲' if up else '下跌'} {abs(facts['change']):,.2f} 點，標題要寫對方向："
+                        f"請直接寫「{'漲' if up else '跌'} {abs(facts['change']):,.2f} 點」，不要出現「{'跌' if up else '漲'}」")
         wave = d.get("abc_wave_analysis") or {}
         texts = [head, d.get("operation_advice", ""), " ".join(d.get("warnings") or []), str(wave.get("intro", "")),
                  " ".join(wave.get("analysis") if isinstance(wave.get("analysis"), list) else [str(wave.get("analysis", ""))])]
@@ -184,10 +219,23 @@ REPORT_SPEC = """{
 }"""
 
 
-def run_report(macro: dict, chips: dict) -> str:
+def run_report(macro: dict, chips: dict, day: str | None = None) -> str:
+    """寫 day 的盤後日報；沒指定就寫證交所最新交易日（不是戰情室的最後一筆：戰情室晚於收盤更新時會落後一天，
+    2026-11-13 就因此重寫了 11/12、漏掉 11/13）。"""
     ind = (macro or {}).get("indicators", {})
     tx, tv, fn, inst = (ind.get(k, {}) for k in ("TW_TAIEX", "TW_TURNOVER", "TW_FOREIGN_NET", "TW_INST_NET"))
-    hist = tx.get("history") or []
+    hist = [list(h) for h in tx.get("history") or []]
+    backfill = bool(day)
+    latest = None if day else _latest_official()
+    if latest and (not hist or latest[0] > hist[-1][0]):
+        hist.append(list(latest))
+    if day:
+        hist = [h for h in hist if h[0] <= day]
+        if not hist or hist[-1][0] != day:
+            off = _official_day(day)
+            if not off.get("close"):
+                raise ClaudeError(f"證交所查不到 {day} 的收盤，不產生日報")
+            hist.append([day, off["close"]])
     if not hist:
         raise ClaudeError("沒有加權指數資料，不產生日報")
     day, close = hist[-1]
@@ -240,6 +288,8 @@ def run_report(macro: dict, chips: dict) -> str:
     d = ask_json(f"日報 {day}", prompt, web=True, effort="high", retries=2, validate=_report_check(facts, hist, macro, chips))
     d.update({"id": f"report-{day.replace('-', '')}", "date": day, "ai_engine": config.ENGINE, "generated_at": iso_now(),
               "facts": facts, "fact_check": "台股數字已與證交所官方數據自動比對"})
+    if backfill:
+        d["backfill_note"] = f"{today()} 補寫：當天排程沒有產生這份日報；總經數據只取 {day} 以前的最後一筆"
     reports = [r for r in (load(config.DATA / "reports.json", []) or []) if r.get("date") != day]
     save(config.DATA / "reports.json", sorted([d, *reports], key=lambda r: r.get("date", ""), reverse=True))
     save(config.DATA / "macro.json", {"date": day, "analysis": d["macro_view"], "ai_engine": config.ENGINE})

@@ -5,6 +5,7 @@
   python run_daily.py --only=themes,report
   python run_daily.py --no-deploy  # 只更新本機，不推 GitHub
   python run_daily.py --skip-if-done  # 排程用：今天已經成功發布過就不再跑（21:00 失敗時 23:00 補跑）
+  python run_daily.py --only=report,publish,deploy --report-day=2026-11-13  # 補寫某一天漏掉的日報（法人、總經只取那天以前）
 同一時間只會有一個產線在跑（data/run.lock）；上一次若中途被關掉，下一次開始時會先把那次失敗記進更新紀錄。
 步驟：registry → macro → chips → themes → verify（概念股出處核對）→ wiki → gaps → report → flows（重算題材火勢）→ publish
       → deploy（推 GitHub、確認公開網站）→ 結果寫進 WEBSITE_REGISTRY.md／WEBSITE_UPDATE_LOG.md
@@ -50,7 +51,15 @@ def _run(args: list[str]) -> int:
     step("wiki", lambda: research.run_wiki(load(config.DATA / "themes.json", {}) or {}), ai=True)
     step("gaps", research.run_gaps, ai=True)
     step("gapcheck", verify.verify_gaps)
-    step("report", lambda: research.run_report(ctx["macro"], load(config.DATA / "chips_summary.json", {}) or {}), ai=True)
+    report_day = next((a.split("=", 1)[1] for a in args if a.startswith("--report-day=")), None)
+
+    def report():
+        if not report_day:  # 證交所最新交易日
+            return research.run_report(ctx["macro"], load(config.DATA / "chips_summary.json", {}) or {})
+        day_chips = chips.build_summary(load(config.DATA / "themes.json", {}) or {}, registry.get(), day=report_day.replace("-", ""), write=False)
+        return research.run_report(research.as_of(ctx["macro"], report_day), day_chips, day=report_day)
+
+    step("report", report, ai=True)
     step("flows", lambda: (chips.build_summary(load(config.DATA / "themes.json", {}) or {}, registry.get()), "題材火勢已重算")[1])
     run["finished_at"] = iso_now()
     runs = (load(config.DATA / "runs.json", []) or [])[-59:] + [run]

@@ -116,10 +116,14 @@ def update(max_back: int = 6) -> str | None:
     return latest or max(have, default=None)
 
 
-def build_summary(themes: dict, reg: dict) -> dict:
-    """當日摘要（外資、投信、同步買超、爆量、產業族群）＋每個題材的資金火勢＋題材股的 20 日序列。"""
+def build_summary(themes: dict, reg: dict, day: str | None = None, write: bool = True) -> dict:
+    """當日摘要（外資、投信、同步買超、爆量、產業族群）＋每個題材的資金火勢＋題材股的 20 日序列。
+    day（YYYYMMDD）給補寫舊日報用：只算到那天；write=False 時不覆蓋網站目前的檔案。"""
     con = _con()
-    dates = [r[0] for r in con.execute("SELECT DISTINCT date FROM chips_history ORDER BY date DESC LIMIT 20")][::-1]
+    dates = [r[0] for r in con.execute("SELECT DISTINCT date FROM chips_history WHERE date<=? ORDER BY date DESC LIMIT 20", (day or "99999999",))][::-1]
+    if day and (not dates or dates[-1] != day):
+        con.close()
+        return {}
     if not dates:
         return {}
     day = dates[-1]
@@ -175,6 +179,8 @@ def build_summary(themes: dict, reg: dict) -> dict:
         "foreign_surges": top("foreign_net", [s for s in stocks if surge(s, 0)]), "trust_surges": top("trust_net", [s for s in stocks if surge(s, 1)]),
         "ratio_note": "持股比例＝當日買賣超張數 ÷ 流通張數 × 100%",
     }
+    if not write:
+        return summary
     save(config.DATA / "chips_summary.json", summary)
     save(config.DATA / "theme_flows.json", {"date": day, "dates5": dates[-5:], "flows": flows})
     save(config.DATA / "chips_series.json", series, compact=True)
