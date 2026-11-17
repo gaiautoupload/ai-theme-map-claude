@@ -1,29 +1,83 @@
 {
- "built_at": "2026-11-17T04:44:48+08:00",
+ "built_at": "2026-11-17T21:44:11+08:00",
  "counts": {
-  "themes": 312,
-  "themes_claude": 16,
+  "themes": 313,
+  "themes_claude": 19,
   "wiki": 2022,
-  "wiki_claude": 156,
-  "reports": 4,
-  "gap": 381
+  "wiki_claude": 186,
+  "reports": 5,
+  "gap": 384
  },
  "latest": {
-  "theme": "2026-11-16",
-  "report": "2026-11-16",
-  "chips": "20261116",
-  "macro": "2026-11-13"
+  "theme": "2026-11-17",
+  "report": "2026-11-17",
+  "chips": "20261117",
+  "macro": "2026-11-16"
  },
  "last_run": {
-  "started_at": "2026-11-17T04:34:53+08:00",
+  "started_at": "2026-11-17T21:00:00+08:00",
   "steps": [
+   {
+    "name": "registry",
+    "ok": true,
+    "note": "1997 檔",
+    "sec": 8
+   },
+   {
+    "name": "macro",
+    "ok": true,
+    "note": "總金線 2026-11-16",
+    "sec": 0
+   },
+   {
+    "name": "chips",
+    "ok": true,
+    "note": "法人資料最新 20261117",
+    "sec": 12
+   },
+   {
+    "name": "themes",
+    "ok": true,
+    "note": "完成 7 個題材",
+    "sec": 1416
+   },
+   {
+    "name": "verify",
+    "ok": true,
+    "note": "核對 248 檔概念股：出處確認 151、核心降為延伸 12、代號不符移除 0",
+    "sec": 22
+   },
+   {
+    "name": "wiki",
+    "ok": true,
+    "note": "重寫 30/30 檔個股簡介",
+    "sec": 718
+   },
+   {
+    "name": "gaps",
+    "ok": true,
+    "note": "新增 3 則預期落差",
+    "sec": 43
+   },
+   {
+    "name": "gapcheck",
+    "ok": true,
+    "note": "預期落差連動股：保留 0、移除 0（新聞內文沒提到或代號不符）",
+    "sec": 0
+   },
    {
     "name": "report",
     "ok": true,
-    "note": "日報 2026-11-13 完成",
-    "sec": 594
+    "note": "日報 2026-11-17 完成",
+    "sec": 429
+   },
+   {
+    "name": "flows",
+    "ok": true,
+    "note": "題材火勢已重算",
+    "sec": 0
    }
   ],
-  "finished_at": "2026-11-17T04:44:47+08:00"
+  "finished_at": "2026-11-17T21:44:10+08:00"
  }
 }
