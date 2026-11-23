@@ -1,27 +1,27 @@
 {
- "built_at": "2026-11-21T21:32:30+08:00",
+ "built_at": "2026-11-23T21:36:53+08:00",
  "counts": {
   "themes": 315,
-  "themes_claude": 29,
+  "themes_claude": 31,
   "wiki": 2022,
-  "wiki_claude": 245,
-  "reports": 8,
-  "gap": 393
+  "wiki_claude": 257,
+  "reports": 9,
+  "gap": 391
  },
  "latest": {
-  "theme": "2026-11-21",
-  "report": "2026-11-20",
-  "chips": "20261120",
+  "theme": "2026-11-23",
+  "report": "2026-11-23",
+  "chips": "20261123",
   "macro": "2026-11-19"
  },
  "last_run": {
-  "started_at": "2026-11-21T20:58:10+08:00",
+  "started_at": "2026-11-23T21:00:00+08:00",
   "steps": [
    {
     "name": "registry",
     "ok": true,
     "note": "1996 檔",
-    "sec": 1
+    "sec": 23
    },
    {
     "name": "macro",
@@ -32,32 +32,32 @@
    {
     "name": "chips",
     "ok": true,
-    "note": "法人資料最新 20261120",
-    "sec": 1
+    "note": "法人資料最新 20261123",
+    "sec": 50
    },
    {
     "name": "themes",
     "ok": true,
     "note": "完成 7 個題材",
-    "sec": 1473
+    "sec": 1326
    },
    {
     "name": "verify",
     "ok": true,
-    "note": "核對 378 檔概念股：出處確認 235、核心降為延伸 31、代號不符移除 0",
-    "sec": 27
+    "note": "核對 404 檔概念股：出處確認 243、核心降為延伸 28、代號不符移除 0",
+    "sec": 30
    },
    {
     "name": "wiki",
     "ok": true,
-    "note": "重寫 11/11 檔個股簡介",
-    "sec": 230
+    "note": "重寫 12/12 檔個股簡介",
+    "sec": 284
    },
    {
     "name": "gaps",
     "ok": true,
-    "note": "新增 2 則預期落差",
-    "sec": 34
+    "note": "新增 0 則預期落差",
+    "sec": 28
    },
    {
     "name": "gapcheck",
@@ -68,8 +68,8 @@
    {
     "name": "report",
     "ok": true,
-    "note": "日報 2026-11-20 完成",
-    "sec": 293
+    "note": "日報 2026-11-23 完成",
+    "sec": 470
    },
    {
     "name": "flows",
@@ -78,6 +78,6 @@
     "sec": 0
    }
   ],
-  "finished_at": "2026-11-21T21:32:29+08:00"
+  "finished_at": "2026-11-23T21:36:51+08:00"
  }
 }
